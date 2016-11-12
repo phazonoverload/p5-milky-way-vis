@@ -11,15 +11,14 @@ var maxSize,
   slider;
   
 function drawSlider() {
-  slider = createSlider(0, 10, 5);
+  slider = createSlider(0, 100, 50);
   slider.position(30, 30);
   slider.style("width", "400px");
 }
 
 function speedChange() {
   var val = slider.value();
-  var percentage = parseInt(map(val, 0, 10, 0, 100));
-  var displayText = "Current speed is " + percentage + "%";
+  var displayText = "Current speed is " + val + "%";
   push();
   translate(-width/2, -height/2);
   textSize(40);
@@ -27,7 +26,7 @@ function speedChange() {
   fill("#D4D4D4");
   text(displayText, 40, 120);
   pop();
-  simSpeed = val;
+  simSpeed = val / 10;
 }
 
 function drawSun() {
