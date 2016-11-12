@@ -7,7 +7,27 @@ var sunSize = 100;
 var maxSize,
   maxDistance,
   maxSpeed,
-  simSpeed = 1;
+  simSpeed = 1,
+  slider;
+  
+function drawSlider() {
+  slider = createSlider(-10, 10, 0);
+  slider.position(30, 30);
+  slider.style("width", "400px");
+}
+
+function speedChange() {
+  var val = slider.value();
+  var percentage = parseInt(map(val, -10, 10, 0, 100));
+  var displayText = "Current speed is " + percentage + "%";
+  push();
+  translate(-width/2, -height/2);
+  textSize(40);
+  noStroke();
+  fill("#D4D4D4");
+  text(displayText, 40, 120);
+  pop();
+}
 
 function drawSun() {
   fill("#EBC62C");
@@ -48,7 +68,8 @@ function Planet(name, color, size, distance, speed) {
   }
 
   this.display = function() {
-
+    this.trajectory();
+    this.drawPlanet();
   }
 }
 
@@ -82,6 +103,7 @@ function setup() {
     var p = planetData.milkyway[i];
     planets[i] = new Planet(p.name, p.color, p.diameter, p.distance, p.period);
   }
+  drawSlider();
 }
 
 function draw() {
@@ -89,8 +111,7 @@ function draw() {
   drawSun();
   translate(width / 2, height / 2);
   for (var i = 0; i < planets.length; i++) {
-    planets[i].trajectory();
-    planets[i].drawPlanet();
     planets[i].display();
   }
+  speedChange();
 }
