@@ -11,14 +11,14 @@ var maxSize,
   slider;
   
 function drawSlider() {
-  slider = createSlider(-10, 10, 0);
+  slider = createSlider(0, 10, 5);
   slider.position(30, 30);
   slider.style("width", "400px");
 }
 
 function speedChange() {
   var val = slider.value();
-  var percentage = parseInt(map(val, -10, 10, 0, 100));
+  var percentage = parseInt(map(val, 0, 10, 0, 100));
   var displayText = "Current speed is " + percentage + "%";
   push();
   translate(-width/2, -height/2);
@@ -27,6 +27,7 @@ function speedChange() {
   fill("#D4D4D4");
   text(displayText, 40, 120);
   pop();
+  simSpeed = val;
 }
 
 function drawSun() {
@@ -43,7 +44,7 @@ function Planet(name, color, size, distance, speed) {
   this.sizeInSitu = map(size, 0, maxSize, 0, width / 15);
   this.distance = distance;
   this.distanceInSitu = map(distance, 0, maxDistance, 0, width / 2.25) + (sunSize / 2);
-  this.speed = (360 / speed) * simSpeed / 10;
+  this.speed = 0;
   this.theta = 0;
   this.posX = 0;
   this.posY = 0;
@@ -64,6 +65,7 @@ function Planet(name, color, size, distance, speed) {
     this.posX = this.distanceInSitu * cos(this.theta);
     this.posY = this.distanceInSitu * sin(this.theta);
     ellipse(this.posX, this.posY, this.sizeInSitu, this.sizeInSitu);
+    this.speed = (360 / speed) * (simSpeed / 10);
     this.theta += this.speed;
   }
 
