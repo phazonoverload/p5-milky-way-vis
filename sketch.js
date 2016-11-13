@@ -2,16 +2,16 @@
 // MUST RUN IN CHROME OR FIREFOX. P5 PREVIEW DOESN'T SUPPORT ES6 //
 ///////////////////////////////////////////////////////////////////
 
-var planets = [];
-var sunSize = 100;
-var maxSize,
-  maxDistance,
-  maxSpeed,
-  simSpeed = 1,
-  slider;
+var planets = [],
+    sunSize = 100,
+    maxSize,
+    maxDistance,
+    maxSpeed,
+    simSpeed = 1,
+    slider;
   
 function drawSlider() {
-  slider = createSlider(0, 100, 50);
+  slider = createSlider(0, 100, 10);
   slider.position(30, 30);
   slider.style("width", "400px");
 }
@@ -27,6 +27,13 @@ function speedChange() {
   text(displayText, 40, 120);
   pop();
   simSpeed = val / 10;
+}
+
+function drawTriggers() {
+  stroke("#5769AE");
+  strokeWeight(1);
+  line(0, height/2, width, height/2);
+  line(width/2, 0, width/2, height);
 }
 
 function drawSun() {
@@ -54,22 +61,30 @@ function Planet(name, color, size, distance, speed) {
     noFill();
     ellipse(0, 0, this.distanceInSitu * 2);
   }
+  
+  this.movePlanet = function() {
+    this.posX = this.distanceInSitu * cos(this.theta);
+    this.posY = this.distanceInSitu * sin(this.theta);
+    this.speed = (360 / speed) * (simSpeed / 10);
+    this.theta += this.speed;
+  }
 
   this.drawPlanet = function() {
     fill(color);
     stroke("#2C354A");
     strokeWeight(2);
-
     ellipseMode(CENTER);
-    this.posX = this.distanceInSitu * cos(this.theta);
-    this.posY = this.distanceInSitu * sin(this.theta);
     ellipse(this.posX, this.posY, this.sizeInSitu, this.sizeInSitu);
-    this.speed = (360 / speed) * (simSpeed / 10);
-    this.theta += this.speed;
+    
+    // DEBUGGING COLISSION DETECTION
+    stroke("#5769AE");
+    strokeWeight(5);
+    point(this.posX, this.posY);
   }
 
   this.display = function() {
     this.trajectory();
+    this.movePlanet();
     this.drawPlanet();
   }
 }
@@ -110,9 +125,12 @@ function setup() {
 function draw() {
   background("#2C354A");
   drawSun();
+  push();
   translate(width / 2, height / 2);
   for (var i = 0; i < planets.length; i++) {
     planets[i].display();
   }
+  pop();
+  drawTriggers();
   speedChange();
 }
