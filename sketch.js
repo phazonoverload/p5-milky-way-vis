@@ -29,10 +29,16 @@ function speedChange() {
 }
 
 function drawTriggers() {
-  stroke("#5769AE");
   strokeWeight(1);
-  line(0, height/2, width, height/2);
-  line(width/2, 0, width/2, height);
+  stroke("red");
+  line(0, height/2, width/2, height/2);
+  stroke("green");
+  line(width/2, height/2, width, height/2);
+  stroke("yellow");
+  line(width/2, 0, height/2, width/2);
+  stroke("cyan");
+  line(width/2, height/2, width/2, height);
+  
 }
 
 function drawSun() {
@@ -76,12 +82,12 @@ function Planet(name, color, size, distance, speed) {
     ellipse(this.posX, this.posY, this.sizeInSitu, this.sizeInSitu);
     
     // DEBUGGING COLISSION DETECTION
-    stroke("#5769AE");
-    strokeWeight(5);
+    stroke("white");
+    strokeWeight(1);
     point(this.posX, this.posY);
   }
   
-  this.checkIfTriggered = function() {
+  this.collide = function() {
     
   }
 
@@ -89,7 +95,7 @@ function Planet(name, color, size, distance, speed) {
     this.trajectory();
     this.movePlanet();
     this.drawPlanet();
-    this.checkIfTriggered();
+    this.collide();
   }
 }
 
