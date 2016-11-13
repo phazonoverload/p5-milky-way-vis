@@ -20,7 +20,6 @@ function speedChange() {
   var val = slider.value();
   var displayText = "Current speed is " + val + "%";
   push();
-  translate(-width/2, -height/2);
   textSize(40);
   noStroke();
   fill("#D4D4D4");
@@ -115,7 +114,7 @@ function findMaxValues() {
 function setup() {
   createCanvas(2000, 2000);
   findMaxValues();
-  for (var i = 0; i < planetData.milkyway.length; i++) {
+  for(var i = 0; i < planetData.milkyway.length; i++) {
     var p = planetData.milkyway[i];
     planets[i] = new Planet(p.name, p.color, p.diameter, p.distance, p.period);
   }
@@ -127,10 +126,10 @@ function draw() {
   drawSun();
   push();
   translate(width / 2, height / 2);
-  for (var i = 0; i < planets.length; i++) {
+  for(var i = 0; i < planets.length; i++) {
     planets[i].display();
   }
   pop();
-  drawTriggers();
   speedChange();
+  drawTriggers();
 }
