@@ -66,7 +66,7 @@ function Planet(name, color, size, distance, speed) {
     this.posY = this.distanceInSitu * sin(this.theta);
     this.speed = (360 / speed) * (simSpeed / 10);
     this.theta += this.speed;
-  }
+  } 
 
   this.drawPlanet = function() {
     fill(color);
@@ -80,11 +80,16 @@ function Planet(name, color, size, distance, speed) {
     strokeWeight(5);
     point(this.posX, this.posY);
   }
+  
+  this.checkIfTriggered = function() {
+    
+  }
 
   this.display = function() {
     this.trajectory();
     this.movePlanet();
     this.drawPlanet();
+    this.checkIfTriggered();
   }
 }
 
