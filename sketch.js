@@ -36,7 +36,7 @@ function drawTriggers() {
 }
 
 function drawSun() {
-  fill("#EBC62C");
+  fill("white");
   stroke("white");
   strokeWeight(2);
   ellipse(width / 2, height / 2, sunSize);
@@ -46,7 +46,7 @@ function Planet(name, color, size, distance, speed) {
   this.name = name;
   this.color = color;
   this.size = size;
-  this.sizeInSitu = map(size, 0, maxSize, 0, width / 15);
+  this.sizeInSitu = map(size, 0, maxSize, 0, width / 20);
   this.distance = distance;
   this.distanceInSitu = map(distance, 0, maxDistance, 0, width / 2.25) + (sunSize / 2);
   this.speed = 0;
