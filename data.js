@@ -56,12 +56,12 @@ var planetData = {
       diameter: 49528,
       color: "#3F89D7"
     },
-    {
-      name: "Pluto",
-      distance: 5870,
-      period: 90588,
-      diameter: 2390,
-      color: "#A9B2B8"
-    }
+    // {
+    //   name: "Pluto",
+    //   distance: 5870,
+    //   period: 90588,
+    //   diameter: 2390,
+    //   color: "#A9B2B8"
+    // }
   ]
 };

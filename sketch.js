@@ -3,13 +3,13 @@
 ///////////////////////////////////////////////////////////////////
 
 var planets = [],
-    sunSize = 100,
-    maxSize,
-    maxDistance,
-    maxSpeed,
-    simSpeed = 1,
-    slider;
-  
+  sunSize = 100,
+  maxSize,
+  maxDistance,
+  maxSpeed,
+  simSpeed = 1,
+  slider;
+
 function drawSlider() {
   slider = createSlider(0, 100, 10);
   slider.position(30, 30);
@@ -26,19 +26,6 @@ function speedChange() {
   text(displayText, 40, 120);
   pop();
   simSpeed = val / 10;
-}
-
-function drawTriggers() {
-  strokeWeight(1);
-  stroke("red");
-  line(0, height/2, width/2, height/2);
-  stroke("green");
-  line(width/2, height/2, width, height/2);
-  stroke("yellow");
-  line(width/2, 0, height/2, width/2);
-  stroke("cyan");
-  line(width/2, height/2, width/2, height);
-  
 }
 
 function drawSun() {
@@ -59,6 +46,7 @@ function Planet(name, color, size, distance, speed) {
   this.theta = 0;
   this.posX = 0;
   this.posY = 0;
+  this.collide = false;
 
   this.trajectory = function() {
     stroke(this.color);
@@ -66,13 +54,13 @@ function Planet(name, color, size, distance, speed) {
     noFill();
     ellipse(0, 0, this.distanceInSitu * 2);
   }
-  
+
   this.movePlanet = function() {
     this.posX = this.distanceInSitu * cos(this.theta);
     this.posY = this.distanceInSitu * sin(this.theta);
     this.speed = (360 / speed) * (simSpeed / 10);
     this.theta += this.speed;
-  } 
+  }
 
   this.drawPlanet = function() {
     fill(color);
@@ -80,22 +68,12 @@ function Planet(name, color, size, distance, speed) {
     strokeWeight(2);
     ellipseMode(CENTER);
     ellipse(this.posX, this.posY, this.sizeInSitu, this.sizeInSitu);
-    
-    // DEBUGGING COLISSION DETECTION
-    stroke("white");
-    strokeWeight(1);
-    point(this.posX, this.posY);
-  }
-  
-  this.collide = function() {
-    
   }
 
   this.display = function() {
     this.trajectory();
     this.movePlanet();
     this.drawPlanet();
-    this.collide();
   }
 }
 
@@ -122,10 +100,15 @@ function findMaxValues() {
   maxSpeed = Math.max(...planetSpeeds);
 }
 
+function doPlanetsCollide() {
+  // Check theta modulo 360 for all planets and their sizes as a buffer
+  // If they are the same, with the buffer considered, namemake Planet.collide true, if not, make it false
+}
+
 function setup() {
   createCanvas(2000, 2000);
   findMaxValues();
-  for(var i = 0; i < planetData.milkyway.length; i++) {
+  for (var i = 0; i < planetData.milkyway.length; i++) {
     var p = planetData.milkyway[i];
     planets[i] = new Planet(p.name, p.color, p.diameter, p.distance, p.period);
   }
@@ -137,10 +120,9 @@ function draw() {
   drawSun();
   push();
   translate(width / 2, height / 2);
-  for(var i = 0; i < planets.length; i++) {
+  for (var i = 0; i < planets.length; i++) {
     planets[i].display();
   }
   pop();
   speedChange();
-  drawTriggers();
 }
