@@ -2,3 +2,11 @@ input[type="range"] {
   background: #D4D4D4;
   padding: 1em;
 }
+
+button {
+  background: #D4D4D4;
+  font-size: 20px;
+  padding: 0.5rem 1rem;
+  border: none;
+  cursor: pointer;
+}
