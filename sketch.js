@@ -17,11 +17,7 @@ var CalculatePlanetValues = {
       planetSizes.push(planetData.milkyway[i].diameter);
     }
     CalculatePlanetValues.size = planetSizes.reduce(function(a, b) {
-      if(a > b) {
-        return a;
-      } else {
-        return b;
-      }
+      if(a > b) { return a; } else { return b; }
     }, 0);
   },
 
@@ -31,11 +27,7 @@ var CalculatePlanetValues = {
       planetDistances.push(planetData.milkyway[i].distance);
     }
     CalculatePlanetValues.distance = planetDistances.reduce(function(a, b) {
-      if(a > b) {
-        return a;
-      } else {
-        return b;
-      }
+      if(a > b) { return a; } else { return b; }
     }, 0);
   },
 
