@@ -7,7 +7,7 @@ var CalculatePlanetValues = {
   distance: 0,
   speed: 0,
 
-  calculateSize: function() {
+  _calculateSize: function() {
     var planetSizes = [];
     for (var i = 0; i < ControlZoom.numberVisible; i++) {
       planetSizes.push(planetData.milkyway[i].diameter);
@@ -17,7 +17,7 @@ var CalculatePlanetValues = {
     }, 0);
   },
 
-  calculateDistance: function() {
+  _calculateDistance: function() {
     var planetDistances = [];
     for (var i = 0; i < ControlZoom.numberVisible; i++) {
       planetDistances.push(planetData.milkyway[i].distance);
@@ -28,8 +28,8 @@ var CalculatePlanetValues = {
   },
 
   calculateAll: function() {
-    CalculatePlanetValues.calculateDistance();
-    CalculatePlanetValues.calculateSize();
+    CalculatePlanetValues._calculateDistance();
+    CalculatePlanetValues._calculateSize();
   }
 }
 
@@ -93,10 +93,7 @@ var ControlZoom = {
     ControlZoom.inputIn.position(280, 90);
     ControlZoom.inputIn.id("zoom-in");
   },
-  buttonClick: function() {
-
-  },
-  threshold: function() {
+  _threshold: function() {
     if(ControlZoom.numberVisible < 1) {
       ControlZoom.numberVisible = 1;
     }
@@ -104,21 +101,23 @@ var ControlZoom = {
       ControlZoom.numberVisible = planetData.milkyway.length;
     }
   },
-  newPlanetValues: function() {
-
+  _newPlanetValues: function() {
+    ControlZoom._threshold();
+    planets = [];
+    CalculatePlanetValues.calculateAll();
+    for (var i = 0; i < planetData.milkyway.length; i++) {
+      var p = planetData.milkyway[i];
+      planets[i] = new Planet(p.name, p.color, p.diameter, p.distance, p.period);
+    }
   },
   change: function() {
     document.getElementById("zoom-in").onclick = function() {
       ControlZoom.numberVisible--;
-      ControlZoom.threshold();
-      console.log("Zoom in clicked. Visible is now " + ControlZoom.numberVisible);
-      // Redraw
+      ControlZoom._newPlanetValues();
     };
     document.getElementById("zoom-out").onclick = function() {
       ControlZoom.numberVisible++;
-      ControlZoom.threshold();
-      console.log("Zoom out clicked. Visible is now " + ControlZoom.numberVisible);
-      // Redraw
+      ControlZoom._newPlanetValues();
     };
   }
 }
@@ -143,21 +142,21 @@ function Planet(name, color, size, distance, speed) {
   this.posX = 0;
   this.posY = 0;
 
-  this.drawTrajectory = function() {
+  this._drawTrajectory = function() {
     stroke(this.color);
     strokeWeight(2);
     noFill();
     ellipse(0, 0, this.distance * 2);
   }
 
-  this.calculatePlanetPos = function() {
+  this._calculatePlanetPos = function() {
     this.posX = this.distance * cos(this.theta);
     this.posY = this.distance * sin(this.theta);
     this.speed = (360 / speed) * ControlSpeed.value;
     this.theta += this.speed;
   }
 
-  this.drawPlanet = function() {
+  this._drawPlanet = function() {
     fill(this.color);
     stroke("#2C354A");
     strokeWeight(2);
@@ -165,7 +164,7 @@ function Planet(name, color, size, distance, speed) {
     ellipse(this.posX, this.posY, this.size, this.size);
   }
 
-  this.drawAngle = function() {
+  this._drawAngle = function() {
     this.angle = parseInt(atan2(-this.posX, -this.posY));
     fill("white");
     if(ControlAngleVisibility.value) {
@@ -177,21 +176,17 @@ function Planet(name, color, size, distance, speed) {
   }
   
   this.display = function() {
-    this.drawTrajectory();
-    this.calculatePlanetPos();
-    this.drawPlanet();
-    this.drawAngle();
+    this._drawTrajectory();
+    this._calculatePlanetPos();
+    this._drawPlanet();
+    this._drawAngle();
   }
 }
 
 function setup() {
   createCanvas(2000, 2000);
   angleMode(DEGREES);
-  CalculatePlanetValues.calculateAll();
-  for (var i = 0; i < planetData.milkyway.length; i++) {
-    var p = planetData.milkyway[i];
-    planets[i] = new Planet(p.name, p.color, p.diameter, p.distance, p.period);
-  }
+  ControlZoom._newPlanetValues();
   ControlSpeed.createInput();
   ControlAngleVisibility.createInput();
   ControlZoom.createInputs();
@@ -200,14 +195,12 @@ function setup() {
 function draw() {
   background("#2C354A");
   drawSun();
-
   push();
   translate(width / 2, height / 2);
   for (var i = 0; i < planets.length; i++) {
     planets[i].display();
   }
   pop();
-
   ControlSpeed.change();
   ControlAngleVisibility.change();
   ControlZoom.createLabel();
