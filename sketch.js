@@ -186,9 +186,11 @@ function Planet(name, color, size, distance, speed) {
       this.years++;
       this.yearSwitch = true;
     }
-    fill("white");
-    noStroke();
-    text(this.years + " years", this.posX + this.size / 2, this.posY + this.size / 2);
+    if(!ControlAngleToggle.value) {
+      fill("white");
+      noStroke();
+      text(this.years + " years", this.posX + this.size / 2, this.posY + this.size / 2);
+    }
   }
   
   this.display = function() {
