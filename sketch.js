@@ -54,13 +54,13 @@ var ControlSpeed = {
   }
 }
 
-var ControlAngleVisibility = {
+var ControlAngleToggle = {
   input: "",
   value: false,
   createInput: function() {
-    ControlAngleVisibility.input = createButton("Click to toggle angles");
-    ControlAngleVisibility.input.position(38, 160);
-    ControlAngleVisibility.input.id("angle-toggle");
+    ControlAngleToggle.input = createButton("Click to toggle angles/years");
+    ControlAngleToggle.input.position(38, 160);
+    ControlAngleToggle.input.id("angle-toggle");
   },
   change: function() {
     planetAngles = [];
@@ -68,7 +68,7 @@ var ControlAngleVisibility = {
       planetAngles.push(planets[i].angle); 
     }
     document.getElementById("angle-toggle").onclick = function() {
-      ControlAngleVisibility.value = !ControlAngleVisibility.value;
+      ControlAngleToggle.value = !ControlAngleToggle.value;
     }
   }
 }
@@ -82,15 +82,15 @@ var ControlZoom = {
     textSize(30);
     noStroke();
     fill("#D4D4D4");
-    text("Zoom level", 40, 125);
+    text("Zoom (restarts simulator)", 40, 125);
     pop();
   },
   createInputs: function() {
     ControlZoom.inputOut = createButton("-");
-    ControlZoom.inputOut.position(220, 90);
+    ControlZoom.inputOut.position(400, 90);
     ControlZoom.inputOut.id("zoom-out");
     ControlZoom.inputIn = createButton("+");
-    ControlZoom.inputIn.position(280, 90);
+    ControlZoom.inputIn.position(460, 90);
     ControlZoom.inputIn.id("zoom-in");
   },
   _threshold: function() {
@@ -141,6 +141,9 @@ function Planet(name, color, size, distance, speed) {
   this.angle = 0;
   this.posX = 0;
   this.posY = 0;
+  this.years = 0;
+  // this.yearSwitch is being used to factor in the possibility (for faster planets) that they don't hit the year-marker perfectly. It is altered in this._drawYear
+  this.yearSwitch = false; 
 
   this._drawTrajectory = function() {
     stroke(this.color);
@@ -165,14 +168,27 @@ function Planet(name, color, size, distance, speed) {
   }
 
   this._drawAngle = function() {
-    this.angle = parseInt(atan2(-this.posX, -this.posY));
+    this.angle = parseInt(atan2(this.posX, this.posY)) + 180;
     fill("white");
-    if(ControlAngleVisibility.value) {
+    if(ControlAngleToggle.value) {
       stroke(this.color);
       line(0, 0, this.posX, this.posY); 
       noStroke();
       text(this.angle + "°", this.posX + this.size / 2, this.posY + this.size / 2);
     } 
+  }
+
+  this._drawYear = function() {
+    if(this.angle > 270 && this.angle > 0 && this.yearSwitch === true) {
+      this.yearSwitch = false;
+    }
+    if(this.angle < 270 && this.yearSwitch === false) {
+      this.years++;
+      this.yearSwitch = true;
+    }
+    fill("white");
+    noStroke();
+    text(this.years + " years", this.posX + this.size / 2, this.posY + this.size / 2);
   }
   
   this.display = function() {
@@ -180,6 +196,7 @@ function Planet(name, color, size, distance, speed) {
     this._calculatePlanetPos();
     this._drawPlanet();
     this._drawAngle();
+    this._drawYear();
   }
 }
 
@@ -188,7 +205,7 @@ function setup() {
   angleMode(DEGREES);
   ControlZoom._newPlanetValues();
   ControlSpeed.createInput();
-  ControlAngleVisibility.createInput();
+  ControlAngleToggle.createInput();
   ControlZoom.createInputs();
 }
 
@@ -202,7 +219,7 @@ function draw() {
   }
   pop();
   ControlSpeed.change();
-  ControlAngleVisibility.change();
+  ControlAngleToggle.change();
   ControlZoom.createLabel();
   ControlZoom.change();
 }
