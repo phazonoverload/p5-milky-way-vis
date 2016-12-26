@@ -1,7 +1,3 @@
-///////////////////////////////////////////////////////////////////
-// MUST RUN IN CHROME OR FIREFOX. P5 PREVIEW DOESN'T SUPPORT ES6 //
-///////////////////////////////////////////////////////////////////
-
 var planets = [],
     planetAngles = [],
     sunSize = 100;
@@ -101,27 +97,28 @@ var ControlZoom = {
 
   },
   threshold: function() {
-    // Don't let it go below 1, or above the array length 
+    if(ControlZoom.numberVisible < 1) {
+      ControlZoom.numberVisible = 1;
+    }
+    if(ControlZoom.numberVisible > planetData.milkyway.length) {
+      ControlZoom.numberVisible = planetData.milkyway.length;
+    }
   },
   newPlanetValues: function() {
 
   },
   change: function() {
-    // document.getElementById("zoom-out").onclick = function() {
-    //   console.log("Zoom out clicked");
-    //   ControlZoom.numberVisible++;
-    //   CalculatePlanetValues.calculateAll();
-    //   // Call threshold
-    // };
     document.getElementById("zoom-in").onclick = function() {
-      console.log("Zoom in clicked");
       ControlZoom.numberVisible--;
-      CalculatePlanetValues.calculateAll();
-      // Call threshold
-      for(var i = 0; i < ControlZoom.numberVisible; i++) {
-        planets[i].size = map(this.sizeOriginal, 0, CalculatePlanetValues.size, 0, width / 20);
-        planets[i].distance = map(this.distanceOriginal, 0, CalculatePlanetValues.distance, 0, width / 2.25) + (sunSize / 2);
-      }
+      ControlZoom.threshold();
+      console.log("Zoom in clicked. Visible is now " + ControlZoom.numberVisible);
+      // Redraw
+    };
+    document.getElementById("zoom-out").onclick = function() {
+      ControlZoom.numberVisible++;
+      ControlZoom.threshold();
+      console.log("Zoom out clicked. Visible is now " + ControlZoom.numberVisible);
+      // Redraw
     };
   }
 }
@@ -203,12 +200,14 @@ function setup() {
 function draw() {
   background("#2C354A");
   drawSun();
+
   push();
   translate(width / 2, height / 2);
   for (var i = 0; i < planets.length; i++) {
     planets[i].display();
   }
   pop();
+
   ControlSpeed.change();
   ControlAngleVisibility.change();
   ControlZoom.createLabel();
