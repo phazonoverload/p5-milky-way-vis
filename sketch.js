@@ -1,11 +1,23 @@
+/*****
+ * planets: will store the Planet objects 
+ * planetAngles: will store the current angles of the planets
+ * sunSize: a configuration option, all planet positions will change to ensure they do not collide with the sun
+*****/
 var planets = [],
     planetAngles = [],
     sunSize = 100;
-  
+
+/*****
+ * This variable contains an object - which contains values, and also relevant functions in altering those values 
+ * CalculatePlanetValues.size contains the value for the largest planet in the dataset
+ * CalculatePlanetValues.distance contains the value for the furthest planet in the dataset
+ * CalculatePlanetValues._calculateSize() only gets called within this function and sets CalculatePlanetValues.size to the largest value in the first n planets where n is the value of ControlZoom.numberVisible (set by the zoom button)
+ * CalculatePlanetValues._calculateDistance() only gets called within this function and sets CalculatePlanetValues.distance to the largest value in the first n planets where n is the value of ControlZoom.numberVisivle (set by the zoom button)
+ * CalculatePlanetValues.calculateAll() is a shorthand function to call both CalculatePlanetValues._calculateSize() and CalculatePlanetValues._calculateDistance()
+*****/
 var CalculatePlanetValues = {
   size: 0,
   distance: 0,
-  speed: 0,
 
   _calculateSize: function() {
     var planetSizes = [];
@@ -33,6 +45,11 @@ var CalculatePlanetValues = {
   }
 }
 
+/*****
+ * This variable contains an object - which contains the speed value, the input which alters it, and functions to handle the change
+ * ControlSpeed.input contains the slider, which is populated by ControlSpeed.createInput()
+ * ControlSpeed.change takes the value of the slider, displays it on the screen, and changes ControlSpeed.value
+*****/
 var ControlSpeed = {
   input: "",
   value: 1,
@@ -54,6 +71,11 @@ var ControlSpeed = {
   }
 }
 
+/*****
+ * Like the previous function, this variable contains the input, the value, and a function to handle the changes
+ * ControlAngleToggle.createInput() creates the button which toggles angle visibility and stores it in ControlAngleToggle.input
+ * ControlAngleToggle.change() empties out the planetAngles array, and then populates it with the angles. It also changes ControlAngleToggle.value to be it's opposite boolean value
+*****/
 var ControlAngleToggle = {
   input: "",
   value: false,
@@ -73,6 +95,14 @@ var ControlAngleToggle = {
   }
 }
 
+/*****
+ * ControlZoom is slightly more complex as there are a couple of buttons, and failsafes that required implementing. 
+ * Like before, it contains a value (in this case how many planets should be visible), and one property per input
+ * ControlZoom.createLabel() and ControlZoom.createInputs() do exactly as their names would suggest
+ * ControlZoom._threshold() doesn't allow ControlZoom.numberVisible to drop below 1, or the above the number of planets in data.js
+ * ControlZoom._newPlanetValues() empties out the planets array, runs CalculatePlanetValues.calculateAll(), and repopulates the planets array with new objects. As we'll see later, the size and sitance of these items are relative to the number of planets and the canvas size
+ * ControlZoom.change() handles the [+] or [-] buttons being clicked
+*****/
 var ControlZoom = {
   numberVisible: planetData.milkyway.length,
   inputOut: "",
@@ -122,6 +152,7 @@ var ControlZoom = {
   }
 }
 
+// This function is boring, and just draws the sun in the center of the screen
 function drawSun() {
   fill("#FECD52");
   stroke("white");
@@ -129,11 +160,14 @@ function drawSun() {
   ellipse(width / 2, height / 2, sunSize);
 }
 
+// This is a function which we'll call to create new planet objects. It takes arguments given by the data in data.js
 function Planet(name, color, size, distance, speed) {
   this.name = name;
   this.color = color;
+  // sizeOriginal is the actual size of the planet in the dataset, size maps that value where each value is suitable to the canvas size
   this.sizeOriginal = size;
   this.size = map(size, 0, CalculatePlanetValues.size, 0, width / 20);
+  // distanceOriginal and distance is also about mapping values to be suitable for the canvase
   this.distanceOriginal = distance;
   this.distance = map(distance, 0, CalculatePlanetValues.distance, 0, width / 2.25) + (sunSize / 2);
   this.speed = speed;
@@ -142,9 +176,10 @@ function Planet(name, color, size, distance, speed) {
   this.posX = 0;
   this.posY = 0;
   this.years = 0;
-  // this.yearSwitch is being used to factor in the possibility (for faster planets) that they don't hit the year-marker perfectly. It is altered in this._drawYear
+  // yearSwitch is being used to factor in the possibility (for faster planets) that they don't hit the year-marker perfectly. It is altered in _drawYear
   this.yearSwitch = false; 
 
+  // This function draws the line which outlines where the planet will go
   this._drawTrajectory = function() {
     stroke(this.color);
     strokeWeight(2);
@@ -152,6 +187,8 @@ function Planet(name, color, size, distance, speed) {
     ellipse(0, 0, this.distance * 2);
   }
 
+  // Here we use some trigonometry - woo, trig!
+  // This is used to calculate planets' x and y positions
   this._calculatePlanetPos = function() {
     this.posX = this.distance * cos(this.theta);
     this.posY = this.distance * sin(this.theta);
@@ -159,6 +196,7 @@ function Planet(name, color, size, distance, speed) {
     this.theta += this.speed;
   }
 
+  // This function simply draws each planet at it's x and y position, and at the correct size
   this._drawPlanet = function() {
     fill(this.color);
     stroke("#2C354A");
@@ -167,6 +205,7 @@ function Planet(name, color, size, distance, speed) {
     ellipse(this.posX, this.posY, this.size, this.size);
   }
 
+  // This function will calculate the angle of the planet, and then display it if the trigger value is true
   this._drawAngle = function() {
     this.angle = parseInt(atan2(this.posX, this.posY)) + 180;
     fill("white");
@@ -178,6 +217,10 @@ function Planet(name, color, size, distance, speed) {
     } 
   }
 
+  // This function calculates and displays the number of year cycles that a planet has taken
+  // Originally I was going to use some collision detection, but this broke for particularly slow/fast planets that either missed the mark, or hit it too many times in quick succession
+  // Jack helped me with the implementation of this by suggesting the additional of a switch whose value changes (true/false) when the planet's value is greater than x.
+  // When the planet passes the year mark, we check if the switch is true, and then increment, then changing the switch again. Works like a charm!
   this._drawYear = function() {
     if(this.angle > 270 && this.angle > 0 && this.yearSwitch === true) {
       this.yearSwitch = false;
@@ -192,7 +235,8 @@ function Planet(name, color, size, distance, speed) {
       text(this.years + " years", this.posX + this.size / 2, this.posY + this.size / 2);
     }
   }
-  
+
+  // This function is a shorthand to execute a group of functions together
   this.display = function() {
     this._drawTrajectory();
     this._calculatePlanetPos();
@@ -202,6 +246,7 @@ function Planet(name, color, size, distance, speed) {
   }
 }
 
+// Create the canvas, get the initial planet values, create inputs
 function setup() {
   createCanvas(2000, 2000);
   angleMode(DEGREES);
@@ -211,6 +256,7 @@ function setup() {
   ControlZoom.createInputs();
 }
 
+// Run the planet functions, and handle changes to speed/angles/zoom
 function draw() {
   background("#2C354A");
   drawSun();
